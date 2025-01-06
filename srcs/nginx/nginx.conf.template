@@ -1,0 +1,121 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    include mime.types;
+    default_type application/octet-stream;
+    gzip_disable "msie6";
+    add_header Cache-Control 'no-store';
+
+    # HTTP server - HTTP isteklerini HTTPS'ye yönlendirme
+    server {
+        listen ${NGINX_PORT};
+        listen [::]:${NGINX_PORT};
+        server_name _;
+        return 301 https://$host$request_uri;
+    }
+
+    # HTTPS server - Ana sunucu
+    server {
+        listen ${NGINX_PORT_SSL} ssl;
+        listen [::]:${NGINX_PORT_SSL} ssl;
+        server_name ${FRONTEND_DOMAIN};
+
+        # SSL Sertifikaları
+        ssl_certificate /etc/nginx/ssl/inception.crt;
+        ssl_certificate_key /etc/nginx/ssl/inception.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+
+        location /src/ { types {
+            application/javascript js ts;
+        }
+
+        default_type application/javascript;
+            alias /usr/share/nginx/html/src/;
+            autoindex off;
+        }
+
+        location /assets/ {
+            alias /usr/share/nginx/html/assets/;
+            autoindex off;
+        }
+
+        location /static/ {
+            alias /usr/share/nginx/html/static/;
+            autoindex off;
+        }
+
+        error_page 404 /404.html;
+        location = /404.html {
+            root /usr/share/nginx/html;#
+            default_type text/html;
+            internal;
+        }
+
+        error_page 403 /403.html;
+        location = /403.html {
+            root /usr/share/nginx/html;
+            default_type text/html;
+            internal;
+        }
+    }
+
+    # Backend API server
+    server {
+        listen ${NGINX_PORT_SSL} ssl;
+        listen [::]:${NGINX_PORT_SSL} ssl;
+        server_name ${BACKEND_DOMAIN};
+
+        # SSL Sertifikaları
+        ssl_certificate /etc/nginx/ssl/inception.crt;
+        ssl_certificate_key /etc/nginx/ssl/inception.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        # API proxy
+        location / {
+            proxy_pass http://django:8000/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # API'nin statik dosyaları
+        location /static/ {
+            alias /usr/share/nginx/html/bstatic/;
+            autoindex off;
+        }
+
+        location /media/ {
+            alias /usr/share/nginx/html/media;
+            autoindex off;
+        }
+    }
+
+    #Grafana server
+    #server {
+    #    listen ${NGINX_PORT_SSL} ssl;
+    #    listen [::]:${NGINX_PORT_SSL} ssl;
+    #    server_name ${GRAFANA_DOMAIN};
+
+        # SSL Sertifikaları
+    #    ssl_certificate /etc/nginx/ssl/inception.crt;
+    #    ssl_certificate_key /etc/nginx/ssl/inception.key;
+    #    ssl_protocols TLSv1.2 TLSv1.3;
+
+    #    location / {
+    #        proxy_pass http://grafana:3000/;
+    #        proxy_set_header Host $host;
+    #        proxy_set_header X-Real-IP $remote_addr;
+    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #        proxy_set_header X-Forwarded-Proto $scheme;
+    #    }
+    #}
+}
