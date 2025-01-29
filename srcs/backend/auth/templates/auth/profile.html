@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Profile - YourApp {% endblock %}
+
+{% block content %}
+<div class="card mx-auto">
+  <div class="card-body text-center">
+    {% if user.avatar %}
+    <img src="{{ user.avatar.url }}" alt="Profile Picture" class="fa-5x mb-3 rounded-circle">
+    {% else %}
+    <i class="fas fa-user-circle fa-5x mb-3 rounded-circle"></i>
+    {% endif %}
+    <h3>{{ user.email }}</h3>
+    <p>Member since: {{ user.date_joined }}</p>
+    {% if not user.mfa_enabled %}
+    <h4>
+      Enable 2FA with Autheticator App.
+    </h4>
+    <div>
+      <img src="{{ qrcode }}" alt="{{ img_path }}">
+
+      <form method="POST" action="{% url 'verify_mfa' %}" class="form text-center">
+        {% csrf_token %}
+        <div class="form-group text-">
+          <div class="mx-auto" style="width: 30%;">
+            <input type="text" id="otp_code" name="otp_code" maxlength="6" required class="form-control"
+              placeholder="Enter your OTP code">
+          </div>
+        </div>
+        <input type="hidden" name="user_id" value="{{ user.id }}">
+        <button class="btn btn-primary" type="submit">Verify</button>
+      </form>
+
+    </div>
+
+    {% else %}
+    <a href="{% url 'disable_2fa' %}" class="btn btn-success" disabled>
+      Disable 2FA
+    </a>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
