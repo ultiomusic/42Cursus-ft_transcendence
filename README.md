@@ -4,7 +4,7 @@
 ---
 ### Web
 - [x] Use a Framework to build the backend. (Django)
-- [ ] Store the score of a tournament in the Blockchain. (Opsiyonel)
+- [ ] Store the score of a tournament in the Blockchain. (Opsionel)
 ### User Manegement
 - [ ] Standard user management, authentication, users across tournaments.
 - [ ] Implementing a remote authentication.
@@ -12,9 +12,9 @@
 - [ ] Remote players
 - [ ] Multiplayers (more than 2 in the same game).
 - [ ] Add Another Game with User History and Matchmaking.
-- [ ] Live chat.
+- [x] Live chat.
 ### Cybersecurity
-- [ ] Implement Two-Factor Authentication (2FA) and JWT.
+- [x] Implement Two-Factor Authentication (2FA) and JWT.
 ### Graphics
 - [ ] Use of advanced 3D techniques.
 ### Server-Side Pong
