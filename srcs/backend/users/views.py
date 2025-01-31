@@ -40,7 +40,7 @@ class ReceivedFriendshipRequestViewSet(
     
     serializer_class = ReceivedFriendshipRequestSerializer
     permission_classes = [IsAuthenticated]
-    gueryset = FriendshipRequest.objects.none()
+    queryset = FriendshipRequest.objects.none()
     
     def get_queryset(self):
         user = self.request.user
